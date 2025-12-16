@@ -20,19 +20,9 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
 import numpy as np
 
-# TODO: Update this with your actual filename
-DATA_FILE = 'your_data.csv'
-
 def load_and_explore_data(filename):
     """
     Load your dataset and print basic information
-    
-    TODO:
-    - Load the CSV file
-    - Print the shape (rows, columns)
-    - Print the first few rows
-    - Print summary statistics
-    - Check for missing values
     """
     print("=" * 70)
     print("LOADING AND EXPLORING DATA")
@@ -40,7 +30,7 @@ def load_and_explore_data(filename):
     
     data = pd.read_csv(filename)
     
-    print("=== Car Price Data ===")
+    print("=== Cubs Hitting Stats Data ===")
     print(f"\nFirst 5 rows:")
     print(data.head())
     
@@ -57,23 +47,13 @@ def load_and_explore_data(filename):
 def visualize_data(data):
     """
     Create visualizations to understand your data
-    
-    TODO:
-    - Create scatter plots for each feature vs target
-    - Save the figure
-    - Identify which features look most important
-    
-    Args:
-        data: your DataFrame
-        feature_columns: list of feature column names
-        target_column: name of target column
     """
     print("\n" + "=" * 70)
     print("VISUALIZING RELATIONSHIPS")
     print("=" * 70)
     
     fig, axes = plt.subplots(2, 2, figsize=(12, 10))
-    fig.suptitle('Hitting Stats vs. OPS', fontsize=16, fontweight='bold', fontname='cursive')
+    fig.suptitle('Hitting Stats vs. OPS', fontsize=16, fontweight='bold', fontfamily='sans-serif')
     
     # Plot 1: ISO vs OPS
     axes[0, 0].scatter(data['ISO'], data['OPS'], color='mediumturquoise', alpha=0.6)
@@ -105,28 +85,16 @@ def visualize_data(data):
 def prepare_and_split_data(data):
     """
     Prepare X and y, then split into train/test
-    
-    TODO:
-    - Separate features (X) and target (y)
-    - Split into train/test (80/20)
-    - Print the sizes
-    
-    Args:
-        data: your DataFrame
-        feature_columns: list of feature column names
-        target_column: name of target column
-        
-    Returns:
-        X_train, X_test, y_train, y_test
     """
     print("\n" + "=" * 70)
     print("PREPARING AND SPLITTING DATA")
     print("=" * 70)
     
     feature_columns = ['ISO', 'BA', 'BB%']
-    target_column = 
+    feature_names = ['ISO', 'BA', 'BB%']  
+    target_column = 'OPS'  
     X = data[feature_columns]
-    y = data['OPS']
+    y = data[target_column]
     
     print(f"\n=== Feature Preparation ===")
     print(f"Features (X) shape: {X.shape}")
@@ -135,29 +103,16 @@ def prepare_and_split_data(data):
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=42)
     
-    print(f"\n=== Data Split (Matching Unplugged Activity) ===")
-    print(f"Training set: {len(X_train)} samples (first 16 hitters)")
-    print(f"Testing set: {len(X_test)} samples (last 4 hitters)")
+    print(f"\n=== Data Split ===")
+    print(f"Training set: {len(X_train)} samples")
+    print(f"Testing set: {len(X_test)} samples")
     
-    return X_train, X_test, y_train, y_test
+    return X_train, X_test, y_train, y_test, feature_names  
 
 
-def train_model(X_train, y_train):
+def train_model(X_train, y_train, feature_names): 
     """
     Train the linear regression model
-    
-    TODO:
-    - Create and train a LinearRegression model
-    - Print the equation with all coefficients
-    - Print feature importance (rank features by coefficient magnitude)
-    
-    Args:
-        X_train: training features
-        y_train: training target
-        feature_names: list of feature names
-        
-    Returns:
-        trained model
     """
     print("\n" + "=" * 70)
     print("TRAINING MODEL")
@@ -167,42 +122,27 @@ def train_model(X_train, y_train):
     model.fit(X_train, y_train)
     
     print(f"\n=== Model Training Complete ===")
-    print(f"Intercept: ${model.intercept_:.2f}")
+    print(f"Intercept: {model.intercept_:.4f}")  
     print(f"\nCoefficients:")
     for name, coef in zip(feature_names, model.coef_):
-        print(f"  {name}: {coef:.2f}")
+        print(f"  {name}: {coef:.4f}")
     
     print(f"\nEquation:")
-    equation = f"Price = "
+    equation = f"OPS = "  
     for i, (name, coef) in enumerate(zip(feature_names, model.coef_)):
         if i == 0:
-            equation += f"{coef:.2f} × {name}"
+            equation += f"{coef:.4f} × {name}"
         else:
-            equation += f" + ({coef:.2f}) × {name}"
-    equation += f" + {model.intercept_:.2f}"
+            equation += f" + ({coef:.4f}) × {name}"
+    equation += f" + {model.intercept_:.4f}"
     print(equation)
     
     return model
-    
 
-def evaluate_model(model, X_test, y_test):
+
+def evaluate_model(model, X_test, y_test, feature_names): 
     """
     Evaluate model performance
-    
-    TODO:
-    - Make predictions on test set
-    - Calculate R² score
-    - Calculate RMSE
-    - Print results clearly
-    - Create a comparison table (first 10 examples)
-    
-    Args:
-        model: trained model
-        X_test: test features
-        y_test: test target
-        
-    Returns:
-        predictions
     """
     print("\n" + "=" * 70)
     print("EVALUATING MODEL")
@@ -216,10 +156,10 @@ def evaluate_model(model, X_test, y_test):
     
     print(f"\n=== Model Performance ===")
     print(f"R² Score: {r2:.4f}")
-    print(f"  → Model explains {r2*100:.2f}% of price variation")
+    print(f"  → Model explains {r2*100:.2f}% of OPS variation")  
     
-    print(f"\nRoot Mean Squared Error: ${rmse:.2f}")
-    print(f"  → On average, predictions are off by ${rmse:.2f}")
+    print(f"\nRoot Mean Squared Error: {rmse:.4f}")  
+    print(f"  → On average, predictions are off by {rmse:.4f}") 
     
     # Feature importance (absolute value of coefficients)
     print(f"\n=== Feature Importance ===")
@@ -227,38 +167,25 @@ def evaluate_model(model, X_test, y_test):
     feature_importance.sort(key=lambda x: x[1], reverse=True)
     
     for i, (name, importance) in enumerate(feature_importance, 1):
-        print(f"{i}. {name}: {importance:.2f}")
+        print(f"{i}. {name}: {importance:.4f}")
     
     return predictions
 
 
-def make_prediction(model, feature_names):
+def make_prediction(model, iso, ba, bb): 
     """
     Make a prediction for a new example
-    
-    TODO:
-    - Create a sample input (you choose the values!)
-    - Make a prediction
-    - Print the input values and predicted output
-    
-    Args:
-        model: trained model
-        feature_names: list of feature names
     """
     print("\n" + "=" * 70)
     print("EXAMPLE PREDICTION")
     print("=" * 70)
-
-    iso=feature_names[0]
-    ba=feature_names[1]
-    bb=feature_names[2]
     
     hitting_features = pd.DataFrame([[iso, ba, bb]],
                                   columns=['ISO', 'BA', 'BB%'])
     predicted_ops = model.predict(hitting_features)[0]
     print(f"\n=== New Prediction ===")
-    print(f"Hitting specs: {iso} ISO, {ba} BA, {bb} BB%")
-    print(f"Predicted OPS: ${predicted_ops:,.2f}")
+    print(f"Hitting specs: ISO={iso}, BA={ba}, BB%={bb}")
+    print(f"Predicted OPS: {predicted_ops:.3f}")
     return predicted_ops
 
 
@@ -270,17 +197,17 @@ if __name__ == "__main__":
     visualize_data(data)
     
     # Step 3: Prepare and split
-    X_train, X_test, y_train, y_test = prepare_and_split_data(data)
+    X_train, X_test, y_train, y_test, feature_names = prepare_and_split_data(data) 
     
     # Step 4: Train
-    model = train_model(X_train, y_train)
+    model = train_model(X_train, y_train, feature_names)
     
     # Step 5: Evaluate
-    predictions = evaluate_model(model, X_test, y_test)
+    predictions = evaluate_model(model, X_test, y_test, feature_names)  
     
-    # Step 6: Make a prediction, add features as an argument
-    feature_names=[]
-    make_prediction(model, feature_names)
+    # Step 6: Make a prediction with example values
+    # Example: predict OPS for a player with ISO=0.200, BA=0.270, BB%=12.0
+    make_prediction(model, iso=0.200, ba=0.270, bb=12.0) 
     
     print("\n" + "=" * 70)
     print("PROJECT COMPLETE!")
